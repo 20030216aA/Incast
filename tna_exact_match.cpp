@@ -32,6 +32,7 @@ std::shared_ptr<BfRtSession> session;
 std::mutex reg_mutex;
 std::atomic<bool> running{true};
 bf_rt_target_t dev_tgt;
+//第二版本
 const BfRtInfo  *bfrtInfo = nullptr;
 const BfRtLearn *learn_obj = nullptr;
 const BfRtTable *Pkt_Register = nullptr;
