@@ -1,0 +1,55 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_756ee/fast"
+/usr/bin/make -f CMakeFiles/cmTC_756ee.dir/build.make CMakeFiles/cmTC_756ee.dir/build
+make[1]: Entering directory '/root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_756ee.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -DBFRT_GENERIC_FLAGS    -o CMakeFiles/cmTC_756ee.dir/CheckSymbolExists.c.o   -c /root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_756ee
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_756ee.dir/link.txt --verbose=1
+/usr/bin/cc   -DBFRT_GENERIC_FLAGS     CMakeFiles/cmTC_756ee.dir/CheckSymbolExists.c.o  -o cmTC_756ee 
+CMakeFiles/cmTC_756ee.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_756ee.dir/build.make:97: recipe for target 'cmTC_756ee' failed
+make[1]: *** [cmTC_756ee] Error 1
+make[1]: Leaving directory '/root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_756ee/fast' failed
+make: *** [cmTC_756ee/fast] Error 2
+
+File /root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_1b337/fast"
+/usr/bin/make -f CMakeFiles/cmTC_1b337.dir/build.make CMakeFiles/cmTC_1b337.dir/build
+make[1]: Entering directory '/root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1b337.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DBFRT_GENERIC_FLAGS -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_1b337.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_1b337
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1b337.dir/link.txt --verbose=1
+/usr/bin/cc   -DBFRT_GENERIC_FLAGS -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_1b337.dir/CheckFunctionExists.c.o  -o cmTC_1b337 -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_1b337.dir/build.make:97: recipe for target 'cmTC_1b337' failed
+make[1]: *** [cmTC_1b337] Error 1
+make[1]: Leaving directory '/root/bf-sde-9.7.0/home/cxm/bfrt_examples/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_1b337/fast' failed
+make: *** [cmTC_1b337/fast] Error 2
+
+

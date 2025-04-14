@@ -1,0 +1,23 @@
+# 初始化端口（假设使用端口0和1）
+
+set 0 rate 20% 
+set 1 rate 40%
+start all
+set all size 1518
+delay 10000      
+set 0 rate 30% 
+set 1 rate 30%
+delay 10000
+set 0 rate 40%
+set 1 rate 40%
+delay 10000
+set 0 rate 50% 
+set 1 rate 30%
+delay 10000         
+set 0 rate 40% 
+set 1 rate 40%
+delay 10000    
+set 0 rate 25% 
+set 1 rate 25%
+delay 10000    
+stop all

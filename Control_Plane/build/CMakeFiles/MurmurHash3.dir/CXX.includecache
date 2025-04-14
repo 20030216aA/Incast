@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/bf-sde-9.7.0/home/cxm/bfrt_examples/MurmurHash3.cpp
+MurmurHash3.h
+/root/bf-sde-9.7.0/home/cxm/bfrt_examples/MurmurHash3.h
+stdlib.h
+-
+
+/root/bf-sde-9.7.0/home/cxm/bfrt_examples/MurmurHash3.h
+stdint.h
+-
+

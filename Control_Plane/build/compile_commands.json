@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/root/bf-sde-9.7.0/home/cxm/bfrt_examples/build",
+  "command": "/usr/bin/c++    -I/root/bf-sde-9.7.0/install/include   -DBFRT_GENERIC_FLAGS   -o CMakeFiles/tna_exact_match.dir/tna_exact_match.cpp.o -c /root/bf-sde-9.7.0/home/cxm/bfrt_examples/tna_exact_match.cpp",
+  "file": "/root/bf-sde-9.7.0/home/cxm/bfrt_examples/tna_exact_match.cpp"
+}
+]
