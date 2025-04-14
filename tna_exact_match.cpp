@@ -32,11 +32,10 @@ std::shared_ptr<BfRtSession> session;
 std::mutex reg_mutex;
 std::atomic<bool> running{true};
 bf_rt_target_t dev_tgt;
-//第二版本
 const BfRtInfo  *bfrtInfo = nullptr;
 const BfRtLearn *learn_obj = nullptr;
 const BfRtTable *Pkt_Register = nullptr;
-const BfRtTable *Pkt_Register_01 = nullptr;
+
 const BfRtTable *Port_Register = nullptr;
 const BfRtTable *HASH1_reg = nullptr;
 const BfRtTable *HASH2_reg = nullptr;
@@ -49,9 +48,8 @@ static const bf_dev_port_t OUT_PORT2    = 154;
 static const bf_dev_port_t OUT_PORT3    = 155;
 // 字段ID缓存
 bf_rt_id_t Pkt_Register_index_fid;
-bf_rt_id_t Pkt_Register_value_fid;
-bf_rt_id_t Pkt_Register_index_fid_01;
-bf_rt_id_t Pkt_Register_value_fid_01;
+bf_rt_id_t Pkt_Register_value_first_fid;
+bf_rt_id_t Pkt_Register_value_second_fid;
 bf_rt_id_t Port_Register_index_fid;
 bf_rt_id_t Port_Register_value_fid;
 bf_rt_id_t Digest_Port_fid;
@@ -86,8 +84,7 @@ void tableSetUp() {
     auto status = bfrtInfo->bfrtTableFromNameGet("pipe.SwitchIngress.Pkt_Register", &Pkt_Register);
     bf_sys_assert(status == BF_SUCCESS);
     
-    status = bfrtInfo->bfrtTableFromNameGet("pipe.SwitchIngress.Pkt_Register_01", &Pkt_Register_01);
-    bf_sys_assert(status == BF_SUCCESS);
+    
 
     status = bfrtInfo->bfrtTableFromNameGet("pipe.SwitchIngress.Port_Register", &Port_Register);
     bf_sys_assert(status == BF_SUCCESS);
@@ -103,14 +100,12 @@ void tableSetUp() {
     status = Pkt_Register->keyFieldIdGet("$REGISTER_INDEX", &Pkt_Register_index_fid);
     bf_sys_assert(status == BF_SUCCESS);
     
-    status = Pkt_Register->dataFieldIdGet("SwitchIngress.Pkt_Register.f1", &Pkt_Register_value_fid);
+    status = Pkt_Register->dataFieldIdGet("SwitchIngress.Pkt_Register.first", &Pkt_Register_value_first_fid);
     bf_sys_assert(status == BF_SUCCESS);
 
-    status = Pkt_Register_01->dataFieldIdGet("SwitchIngress.Pkt_Register_01.f1", &Pkt_Register_value_fid_01);
+    status = Pkt_Register->dataFieldIdGet("SwitchIngress.Pkt_Register.second", &Pkt_Register_value_second_fid);
     bf_sys_assert(status == BF_SUCCESS);
 
-    status = Pkt_Register_01->keyFieldIdGet("$REGISTER_INDEX", &Pkt_Register_index_fid_01);
-    bf_sys_assert(status == BF_SUCCESS);
 
 
     status = Port_Register->keyFieldIdGet("$REGISTER_INDEX", &Port_Register_index_fid);
@@ -195,7 +190,8 @@ void clearPacketCountReg() {
 
             
             uint64_t zero = 0;
-            status = data->setValue(Pkt_Register_value_fid, zero);
+            status = data->setValue(Pkt_Register_value_first_fid, zero);
+            status = data->setValue(Pkt_Register_value_second_fid, zero);
             if (status != BF_SUCCESS) {
                 fprintf(stderr, "数据设置失败[%u][%u]: %s\n",
                        ingress, egress, bf_err_str(status));
@@ -215,62 +211,6 @@ void clearPacketCountReg() {
     }
 }
 
-
-void clearPacketCountReg_01() {
-    std::lock_guard<std::mutex> lock(reg_mutex);
-    
-    std::unique_ptr<BfRtTableKey> key;
-    auto status = Pkt_Register_01->keyAllocate(&key);
-    if (status != BF_SUCCESS) {
-        fprintf(stderr, "键分配失败: %s\n", bf_err_str(status));
-        return;
-    }
-
-    for (uint16_t ingress = 0; ingress < MAX_PORTS; ++ingress) {
-        for (uint16_t egress = 0; egress < MAX_PORTS; ++egress) {
-            // 构造16位索引
-            uint16_t index = (ingress << 8) | egress;
-            
-            // 绑定键值
-            Pkt_Register_01->keyReset(key.get());
-            status = key->setValue(Pkt_Register_index_fid_01, index);
-            if (status != BF_SUCCESS) {
-                fprintf(stderr, "键设置失败[%u][%u]: %s\n",
-                       ingress, egress, bf_err_str(status));
-                continue;
-            }
-            // 分配数据对象
-            std::unique_ptr<BfRtTableData> data;
-            status = Pkt_Register_01->dataAllocate(&data);
-            if (status != BF_SUCCESS) {
-                fprintf(stderr, "数据分配失败[%u][%u]: %s\n",
-                       ingress, egress, bf_err_str(status));
-                continue;
-            }
-            uint64_t flags = 0;
-
-            
-            uint64_t zero = 0;
-            status = data->setValue(Pkt_Register_value_fid_01, zero);
-            if (status != BF_SUCCESS) {
-                fprintf(stderr, "数据设置失败[%u][%u]: %s\n",
-                       ingress, egress, bf_err_str(status));
-                continue;
-            }
-
-            // 执行写入操作
-            
-            status = Pkt_Register_01->tableEntryMod(
-                *session, dev_tgt, flags, *key, *data
-            );
-            if (status != BF_SUCCESS) {
-                fprintf(stderr, "写入失败[%u][%u]: %s\n",
-                       ingress, egress, bf_err_str(status));
-            }
-            session->sessionCompleteOperations();
-        }
-    }
-}
 
 /* 清空过载计数器（带键绑定）*/
 void clearOverloadReg() {
@@ -464,7 +404,7 @@ void maintenanceThread(uint32_t interval_sec) {
         
         printf("\n--- 定时清空寄存器 ---\n");
         clearPacketCountReg();
-        clearPacketCountReg_01();
+
         clearOverloadReg();
         clearHashRegs();
        printf("--- 清空完成 [%lu] ---\n", 
@@ -606,7 +546,7 @@ void setupDigest() {
             else if (cmd == "clear") {
                 clearPacketCountReg();
                 clearOverloadReg();
-                clearPacketCountReg_01();
+
                 std::cout << "立即清空所有寄存器完成\n";
             }
             else if (cmd.find("set-pkt-th") == 0) {
